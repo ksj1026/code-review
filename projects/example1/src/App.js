@@ -1,46 +1,86 @@
 import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Link,
-  Switch,
-  Redirect,
-  Prompt
-} from "react-router-dom";
+import { Route, Link, Switch } from "react-router-dom";
 import "./App.css";
 
-class Form extends React.Component {
+class Profile extends React.Component {
+  state = {
+    data: ""
+  };
+  componentDidMount() {
+    const { onLoading } = this.props;
+    onLoading(true);
+    fetch(`https://api.github.com/users/${this.props.profileId}`)
+      .then(res => {
+        console.log(res.data);
+        return res.json();
+      })
+      .then(data => {
+        onLoading(false);
+        console.log(data);
+        this.setState({ data });
+      });
+  }
+
   render() {
+    const { loading, match } = this.props;
+
+    if (loading) return <div>정보를 불러오는 중입니다...</div>;
     return (
       <div>
-        <h1>Form {this.state.dirty ? "작성중" : ""}</h1>
-        <input type="text" onInput={this.setDirty} />
-        <Prompt
-          when={this.state.dirty}
-          message={"저장되지 않은 데이터가 있습니다. 정말 이동할까요?"}
-        />
+        프로필 정보: {match.params.profileId} {this.state.data}
       </div>
     );
   }
 }
 
-const Links = () => (
-  <nav>
-    <Link to="/">Home</Link>
-    <Link to="/form">Form</Link>
-  </nav>
-);
+const SelectProfile = () => <div>프로필을 하나 선택하세요</div>;
 
-const Home = () => <h1>Home</h1>;
+class App extends React.Component {
+  state = {
+    loading: true
+  };
 
-const App = () => (
-  <Router>
-    <div>
-      <Links />
-      <Route exact path="/" component={Home} />
-      <Route path="/form" component={Form} />
-    </div>
-  </Router>
-);
+  handleLoading = loading => {
+    this.setState({ loading });
+  };
+
+  render() {
+    return (
+      <div>
+        <div className="links">
+          <Link to="/profile" className="link">
+            Home
+          </Link>
+
+          <Link to="/profile/miconblog" className="link">
+            Profile 1
+          </Link>
+          <Link to="/profile/ksj1026" className="link">
+            Profile 2
+          </Link>
+        </div>
+
+        <div className="tabs">
+          <Switch>
+            <Route path="/profile" exact component={SelectProfile} />
+            <Route
+              path="/profile/:profileId"
+              render={props => {
+                return (
+                  <Profile
+                    key={props.location.pathname}
+                    {...props}
+                    loading={this.state.loading}
+                    onLoading={this.handleLoading}
+                  />
+                );
+              }}
+            />
+          </Switch>
+        </div>
+      </div>
+    );
+  }
+}
 
 export default App;
