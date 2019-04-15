@@ -1,16 +1,24 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 
+const Links = () => (
+  <nav>
+    <Link to="/?id=123">Inline</Link>
+    <Link to={{ pathname: '/', search: 'id'}}>Object</Link>
+  </nav>
+)
 const App = () => (
   <Router>
     <div>
+      <Links/>
       <Route
-        path="/:date(\d{4}-\d{2}-\d{2}):ext(\.[a-z]+)/"
-        render={({match}) => (
+        path="/"
+        render={({ match, location }) => (
           <div>
-            <h1>YES Matched!</h1>
-            <div>date: {match.params.date}</div>
-            <div>ext: {match.params.ext}</div>
+            <p>root</p>
+            <div>{JSON.stringify(match)}</div>
+            <div>{JSON.stringify(location)}</div>
+            <div>여기에 매치되는 쿼리 문자열의 id를 출력하세요.</div>
           </div>
         )}
         />
