@@ -4,30 +4,32 @@ import {
   Route,
   Link,
   Switch,
-  Redirect
+  Redirect,
+  Prompt
 } from "react-router-dom";
 import "./App.css";
 
-const isLoggedIn = false;
+class Form extends React.Component {
+  render() {
+    return (
+      <div>
+        <h1>Form {this.state.dirty ? "작성중" : ""}</h1>
+        <input type="text" onInput={this.setDirty} />
+        <Prompt
+          when={this.state.dirty}
+          message={"저장되지 않은 데이터가 있습니다. 정말 이동할까요?"}
+        />
+      </div>
+    );
+  }
+}
 
 const Links = () => (
   <nav>
     <Link to="/">Home</Link>
-    <Link to="/protected">인증된 페이지로 접근하기</Link>
+    <Link to="/form">Form</Link>
   </nav>
 );
-
-const SignIn = () => (
-  <div>
-    <h2>로그인</h2>
-    <form>
-      <input placeholder="ID" type="text" />
-      <input placeholder="PW" type="password" />
-    </form>
-  </div>
-);
-
-const ProtectedPage = () => <h2>인증된 페이지</h2>;
 
 const Home = () => <h1>Home</h1>;
 
@@ -36,16 +38,7 @@ const App = () => (
     <div>
       <Links />
       <Route exact path="/" component={Home} />
-      <Route
-        path="/signin"
-        render={() => (isLoggedIn ? <ProtectedPage /> : <SignIn />)}
-      />
-      <Route
-        path="/protected"
-        render={() =>
-          isLoggedIn ? <ProtectedPage /> : <Redirect to="/signin" />
-        }
-      />
+      <Route path="/form" component={Form} />
     </div>
   </Router>
 );
